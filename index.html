@@ -1,1 +1,146 @@
-<h1>hello 1</h1>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex Box</title>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        .flexBox {
+            display: flex;
+            flex-direction: column;
+            background-color: lightgrey;
+        }
+
+        #f1 {
+            height: 100px;
+            background-color: lightcoral;
+        }
+
+        #f2 {
+            height: 100px;
+            background-color: lightgreen;
+        }
+
+        #f3 {
+            height: 100px;
+            background-color: lightyellow;
+        }
+
+        .flexBox>* {
+            flex-basis: 100vh
+        }
+
+        .indicators {
+            display: flex;
+            flex-direction: column;
+            width: 20px;
+            align-items: center;
+            position: fixed;
+            top: 50%;
+            margin-top: -33px;
+            right: 5px;
+        }
+
+        .indicators a {
+            margin: 5px;
+            border-radius: 50px;
+        }
+
+        .indica {
+            border: 1px solid rgba(104, 104, 104, 0.7);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(104, 104, 104, 0.7);
+        }
+
+        /* .indica:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        } */
+
+        .indica-active {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        ul,
+        li {
+            border: 1px solid black;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            let indicators = document.querySelectorAll(".indica");
+            const activeIndica = function (element) {
+                element.classList.add('indica-active');
+            };
+            const clearIndica = function () {
+                indicators.forEach(element => {
+                    element.classList.remove('indica-active');
+                });
+            };
+            indicators.forEach(element => {
+                element.addEventListener("click", function () {
+                    clearIndica();
+                    activeIndica(this);
+                })
+            });
+
+            let currPos = 'f1';
+            let f1Top = document.querySelector('#f1').offsetTop;
+            let f2Top = document.querySelector('#f2').offsetTop;
+            let f3Top = document.querySelector('#f3').offsetTop;
+
+            window.addEventListener('scroll', function(e) {
+                let windowPos = window.scrollY;
+                if(currPos !== 'f1' && (f1Top-windowPos < 50 && f1Top-windowPos > -50)){
+                    currPos = 'f1';
+                    clearIndica();
+                    activeIndica(document.querySelectorAll('.indicators a')[0]);
+                }
+
+                if(currPos !== 'f2' && (f2Top-windowPos < 50 && f2Top-windowPos > -50)){
+                    currPos = 'f2';
+                    clearIndica();
+                    activeIndica(document.querySelectorAll('.indicators a')[1]);
+                }
+
+                if(currPos !== 'f3' && (f3Top-windowPos < 50 && f3Top-windowPos > -50)){
+                    currPos = 'f3';
+                    clearIndica();
+                    activeIndica(document.querySelectorAll('.indicators a')[2]);
+                }
+            });
+
+            window.addEventListener('resize', function(e) {
+                f1Top = document.querySelector('#f1').offsetTop;
+                f2Top = document.querySelector('#f2').offsetTop;
+                f3Top = document.querySelector('#f3').offsetTop;
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="indicators">
+        <a href="#f1" class="indica indica-active"></a>
+        <a href="#f2" class="indica"></a>
+        <a href="#f3" class="indica"></a>
+    </div>
+
+    <div class="flexBox">
+        <div id="f1" class="flexElement">flexElement1</div>
+        <div id="f2" class="flexElement">flexElement2</div>
+        <div id="f3" class="flexElement">flexElement3</div>
+    </div>
+</body>
+
+</html>
