@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+</head>
+
+<body>
+    <div id="container" style="text-align: center;">
+        <div style="height: 30px;">
+            <h2 id="title">Snake Game</h1>
+        </div>
+        <div id="canvasContainer">
+            <canvas id="canvas" width="500" height="500"></canvas>
+        </div>
+        <div>
+            <div
+                style="height: 200px;width: 500px;border:0px solid black;display: inline-block;background-color: lightblue;margin: 5px 0px;text-align: left;padding: 5px;box-sizing: border-box;">
+                <i class='far fa-caret-square-up' style='font-size:24px;margin-left: 25px;'></i>
+                <br>
+                <i class='far fa-caret-square-left' style='font-size:24px'></i>
+                <i class='far fa-caret-square-down' style='font-size:24px'></i>
+                <i class='far fa-caret-square-right' style='font-size:24px'></i>
+                <h3>Use the arrow keys to control the snake. <br>Press one of the arrow keys to start.</h3>
+            </div>
+        </div>
+        <div style="height: 30px;"><button id="resetBtn">Reset</button></div>
+    </div>
+
+
+    <script>
+        let canvas, ctx;
+        let snake = [];
+        let appleX;
+        let appleY;
+        let nextX = nextY = 0;
+        let gridSize = 25;
+        let lastTimeStamp = null;
+        let gameOver = false;
+        let title = document.getElementById("title");
+        let resetBtn = document.getElementById("resetBtn");
+        let canvasContainer = document.getElementById("canvasContainer")
+
+        window.onload = () => {
+            canvas = document.getElementById("canvas");
+            ctx = canvas.getContext("2d");
+
+            document.addEventListener("keydown", keyDownEvent);
+
+            resetBtn.addEventListener("click", function () {
+                title.innerHTML = "Snake Game";
+                title.style.color = "black";
+
+                nextX = nextY = 0;
+                lastTimeStamp = null;
+                gameOver = false;
+                initSnakeAndApple();
+                window.requestAnimationFrame(draw);
+            })
+
+            initSnakeAndApple();
+            window.requestAnimationFrame(draw);
+        };
+
+        const keyDownEvent = e => {
+            switch (e.keyCode) {
+                case 37:
+                    nextX = nextX == 1 ? 1 : -1;
+                    nextY = 0;
+                    break;
+                case 38:
+                    nextX = 0;
+                    nextY = nextY == 1 ? 1 : -1;
+                    break;
+                case 39:
+                    nextX = nextX == -1 ? -1 : 1;
+                    nextY = 0;
+                    break;
+                case 40:
+                    nextX = 0;
+                    nextY = nextY == -1 ? -1 : 1;
+                    break;
+            }
+        };
+
+        const draw = (timestamp) => {
+            if (timestamp - lastTimeStamp > 100 || lastTimeStamp == null) {
+                // move snake in next pos
+                if (nextX !== 0 || nextY !== 0) {
+                    let tail = snake.pop();
+                    tail.x = snake[0].x + nextX * gridSize;
+                    tail.y = snake[0].y + nextY * gridSize;
+                    snake.unshift(tail);
+
+                    gameOver = checkPosition(tail.x, tail.y);
+
+                }
+
+                // snake over game world?
+                if (snake[0].x >= canvas.width) snake[0].x = 0;
+                if (snake[0].x < 0) snake[0].x = canvas.width - gridSize;
+                if (snake[0].y >= canvas.height) snake[0].y = 0;
+                if (snake[0].y < 0) snake[0].y = canvas.height - gridSize;
+
+                //snake bite apple?
+                if (snake[0].x == appleX && snake[0].y == appleY) {
+                    do {
+                        var appleInSnake = false;
+                        appleX = Math.round(Math.random() * (canvas.width - gridSize) / gridSize) * gridSize;
+                        appleY = Math.round(Math.random() * (canvas.height - gridSize) / gridSize) * gridSize;
+                        appleInSnake = checkPosition(appleX, appleY);
+
+                    } while (appleInSnake);
+
+                    let tail = snake[snake.length - 1];
+                    snake.push({
+                        x: tail.x - nextX * gridSize,
+                        y: tail.y - nextY * gridSize
+                    });
+                }
+
+                //draw background
+                ctx.fillStyle = "rgb(200,200,200)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                //draw snake
+                let gap = 1;
+                let width = gridSize - 2 * gap;
+                snake.forEach(function (e) {
+                    ctx.fillStyle = gameOver ? "red" : "black";
+                    ctx.fillRect(e.x + gap, e.y + gap, width, width);
+                });
+
+                //draw apple
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc((appleX + gridSize / 2), appleY + gridSize / 2, gridSize / 2, 0, 2 * Math.PI, true);
+                ctx.fill();
+
+                lastTimeStamp = timestamp;
+            }
+            if (!gameOver) {
+                window.requestAnimationFrame(draw);
+            } else {
+                title.innerHTML = "Game Over";
+                title.style.color = "red";
+            }
+        };
+
+        const checkPosition = (x, y) => {
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x == x && snake[i].y == y) { //Same position
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const initSnakeAndApple = () => {
+            // snake
+            snake = [
+                {
+                    x: 2 * gridSize,
+                    y: 2 * gridSize
+                },
+                {
+                    x: 1 * gridSize,
+                    y: 2 * gridSize
+                },
+                {
+                    x: 0 * gridSize,
+                    y: 2 * gridSize
+                }
+            ];
+
+            // apple
+            appleX = appleY = 5 * gridSize;
+        }
+
+    </script>
+</body>
+
+</html>
